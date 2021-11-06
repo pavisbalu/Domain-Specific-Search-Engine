@@ -1,4 +1,4 @@
-package edu.bits.wilp.ir.assignment;
+package edu.bits.wilp.ir_assignment;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 
