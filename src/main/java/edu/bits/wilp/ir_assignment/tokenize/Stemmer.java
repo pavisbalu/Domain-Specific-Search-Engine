@@ -1,4 +1,4 @@
-package edu.bits.wilp.ir_assignment.tokenizing;
+package edu.bits.wilp.ir_assignment.tokenize;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 

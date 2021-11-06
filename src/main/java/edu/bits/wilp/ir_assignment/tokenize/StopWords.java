@@ -1,11 +1,10 @@
-package edu.bits.wilp.ir_assignment.tokenizing;
+package edu.bits.wilp.ir_assignment.tokenize;
 
 import edu.bits.wilp.ir_assignment.utils.Preconditions;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashSet;
