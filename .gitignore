@@ -28,5 +28,8 @@ hs_err_pid*
 # Mac Files
 .DS_Store
 
+# Maven
+target/
+
 # Full Dataset
 /datasets/product-reviews-dataset/
