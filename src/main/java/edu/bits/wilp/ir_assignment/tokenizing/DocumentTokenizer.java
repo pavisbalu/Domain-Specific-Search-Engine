@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.stream.Stream;
 
 // Refer to tests for documentation / process
 public class DocumentTokenizer {
@@ -29,8 +30,8 @@ public class DocumentTokenizer {
 
         Map<String, Long> termCounts = linesInDocument.stream()
                 .map(this::lineToTokens)
-                .map(this::processLine)
-                .reduce(new HashMap<>(), mergeCounters(), mergeCounters());
+                .flatMap(this::preprocess)
+                .reduce(new HashMap<>(), termCount(), mergeCounters());
 
         // round the tf to 4 decimal places
         DecimalFormat df = new DecimalFormat("#.####");
@@ -38,6 +39,7 @@ public class DocumentTokenizer {
 
         // compute TF
         // tf(t,d) = count of t in d / number of words in d
+        tf.clear(); // paranoid check to avoid tf calculations mismatch
         int N = termCounts.size();
         for (String token : termCounts.keySet()) {
             tf.put(token, Double.valueOf(df.format((double) termCounts.get(token) / N)));
@@ -56,11 +58,10 @@ public class DocumentTokenizer {
         return line.toLowerCase().replaceAll("[^a-z0-9 ]", " ").split("\\s+");
     }
 
-    private Map<String, Long> processLine(String[] tokens) {
+    private Stream<String> preprocess(String[] tokens) {
         return Arrays.stream(tokens)
                 .map(Stemmer::stemWord)
-                .filter(StopWords::isNotStopWord)
-                .reduce(new HashMap<>(), termCount(), mergeCounters());
+                .filter(StopWords::isNotStopWord);
     }
 
     private BiFunction<Map<String, Long>, String, Map<String, Long>> termCount() {
