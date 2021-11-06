@@ -1,5 +1,8 @@
 # Group A1 - IR Assignment
 
+## Citations / References
+- Stopwords used are from https://www.ranks.nl/stopwords. We use the very large stop word list.
+
 ## Problem Statement
 The task is to build a search engine which will cater to the needs of a particular domain. You have to feed your IR
 model with documents containing information about the chosen domain. It will then process the data and build indexes.
