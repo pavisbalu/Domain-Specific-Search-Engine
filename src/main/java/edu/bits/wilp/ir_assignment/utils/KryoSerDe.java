@@ -15,6 +15,5 @@ public class KryoSerDe {
     public static void writeToFile(Object value, OutputStream outputStream) {
         Output output = new Output(outputStream);
         kryo.writeObject(output, value);
-        output.close();
     }
 }

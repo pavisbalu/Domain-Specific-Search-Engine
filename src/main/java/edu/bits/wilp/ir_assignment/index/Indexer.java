@@ -1,10 +1,12 @@
 package edu.bits.wilp.ir_assignment.index;
 
 import edu.bits.wilp.ir_assignment.tokenize.DocumentTokenizer;
+import edu.bits.wilp.ir_assignment.utils.KryoSerDe;
 import edu.bits.wilp.ir_assignment.utils.NumberUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -12,14 +14,14 @@ import java.util.*;
 
 public class Indexer {
     public static void main(String[] args) throws IOException {
-        new Indexer().index("datasets/sample.csv", "reviews.text");
+        new Indexer().index("datasets/sample.csv", "reviews.text", "output.bin");
     }
 
-    public void index(String filename, String fieldName) throws IOException {
+    public void index(String filename, String inputFile, String outputFile) throws IOException {
         Reader in = new FileReader(filename);
         Iterable<CSVRecord> records = csvFormat().parse(in);
 
-        List<DocumentMeta> documents = processDocuments(fieldName, records);
+        List<DocumentMeta> documents = processDocuments(inputFile, records);
 
         final int N = documents.size();
         Map<String, Double> DF = computeDF(documents);
@@ -37,7 +39,10 @@ public class Indexer {
                 tfIdfTable.add(document.docId, token, tfIdf);
             }
         }
-        // TODO: Persist TF-IDF Table to disk
+
+        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        KryoSerDe.writeToFile(tfIdfTable, outputStream);
+        outputStream.close();
     }
 
     private List<DocumentMeta> processDocuments(String fieldName, Iterable<CSVRecord> records) {
