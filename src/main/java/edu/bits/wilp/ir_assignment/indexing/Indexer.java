@@ -35,6 +35,8 @@ public class Indexer {
         Map<String, Double> DF = computeDF(documents);
         Set<String> VOCAB = DF.keySet();
 
+        // compute tf-idf
+        // tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
         for (DocumentMeta document : documents) {
             Set<String> tokens = document.tokens();
             for (String token : tokens) {
