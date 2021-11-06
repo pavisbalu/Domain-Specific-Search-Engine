@@ -33,6 +33,10 @@ public class StopWords {
         return stopWords.contains(input);
     }
 
+    public static boolean isNotStopWord(String input) {
+        return !isStopWord(input);
+    }
+
     public static List<String> filter(List<String> input) {
         return input.stream().filter((word) -> !stopWords.contains(word)).collect(Collectors.toList());
     }

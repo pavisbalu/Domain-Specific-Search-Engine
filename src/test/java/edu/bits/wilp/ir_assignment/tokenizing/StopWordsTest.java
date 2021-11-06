@@ -16,6 +16,13 @@ public class StopWordsTest {
     }
 
     @Test
+    public void testIsNotStopWord() {
+        assertFalse(StopWords.isNotStopWord("a"));
+        assertFalse(StopWords.isNotStopWord("the"));
+        assertTrue(StopWords.isNotStopWord("pavithra"));
+    }
+
+    @Test
     public void testFilter() {
         List<String> input = List.of("a quick brown fox jumped over a lazy dog".split(" "));
         List<String> filteredWords = StopWords.filter(input);
