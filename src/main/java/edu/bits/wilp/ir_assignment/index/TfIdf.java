@@ -1,16 +1,18 @@
 package edu.bits.wilp.ir_assignment.index;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // We'll persist the instance of this class as the index file (aka) model
-public class TfIdf {
+public class TfIdf implements Iterable<TfIdItem> {
     private final int N;
     private final List<String> vocab;
     private final Map<TfIdfKey, Double> tfIdfVectors;
     private final Map<String, Double> DF;
+
+    // for kryo
+    private TfIdf() {
+        this(0, new HashMap<>());
+    }
 
     public TfIdf(int totalDocuments, Map<String, Double> DF) {
         N = totalDocuments;
@@ -32,15 +34,40 @@ public class TfIdf {
         return vocab.indexOf(token);
     }
 
+    // Size of the documents
     public int N() {
         return N;
     }
 
+    // Size of the vocab
     public int size() {
         return tfIdfVectors.size();
     }
 
     public double DF(String token) {
         return this.DF.getOrDefault(token, 0.0);
+    }
+
+    @Override
+    public Iterator<TfIdItem> iterator() {
+        return new Iterator<>() {
+            private Iterator<Map.Entry<TfIdfKey, Double>> underlying = tfIdfVectors.entrySet().iterator();
+
+            @Override
+            public boolean hasNext() {
+                return underlying.hasNext();
+            }
+
+            @Override
+            public TfIdItem next() {
+                Map.Entry<TfIdfKey, Double> kv = underlying.next();
+                TfIdfKey key = kv.getKey();
+                return new TfIdItem(vocab.get(key.getTokenAsVocabId()), key.getDocId(), kv.getValue());
+            }
+        };
+    }
+
+    public Double get(TfIdfKey key) {
+        return tfIdfVectors.get(key);
     }
 }
