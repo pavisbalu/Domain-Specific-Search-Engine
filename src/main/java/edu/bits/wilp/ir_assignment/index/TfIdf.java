@@ -1,9 +1,12 @@
 package edu.bits.wilp.ir_assignment.index;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // We'll persist the instance of this class as the index file (aka) model
-public class TfIdf implements Iterable<Map.Entry<TfIdfKey, Double>> {
+public class TfIdf {
     private final int N;
     private final List<String> vocab;
     private final Map<TfIdfKey, Double> tfIdfVectors;
@@ -39,10 +42,5 @@ public class TfIdf implements Iterable<Map.Entry<TfIdfKey, Double>> {
 
     public double DF(String token) {
         return this.DF.getOrDefault(token, 0.0);
-    }
-
-    @Override
-    public Iterator<Map.Entry<TfIdfKey, Double>> iterator() {
-        return tfIdfVectors.entrySet().iterator();
     }
 }
