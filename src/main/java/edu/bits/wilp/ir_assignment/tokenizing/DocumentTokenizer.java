@@ -28,10 +28,10 @@ public class DocumentTokenizer {
             return;
         }
 
-        Map<String, Long> termCounts = linesInDocument.stream()
+        Map<String, Double> termCounts = linesInDocument.stream()
                 .map(this::lineToTokens)
                 .flatMap(this::preprocess)
-                .reduce(new HashMap<>(), termCount(), mergeCounters());
+                .reduce(new HashMap<>(), termCount(), DocumentTokenizer.mergeCounters());
 
         // round the tf to 4 decimal places
         DecimalFormat df = new DecimalFormat("#.####");
@@ -42,7 +42,7 @@ public class DocumentTokenizer {
         tf.clear(); // paranoid check to avoid tf calculations mismatch
         int N = termCounts.size();
         for (String token : termCounts.keySet()) {
-            tf.put(token, Double.valueOf(df.format((double) termCounts.get(token) / N)));
+            tf.put(token, Double.valueOf(df.format(termCounts.get(token) / N)));
         }
     }
 
@@ -64,24 +64,24 @@ public class DocumentTokenizer {
                 .filter(StopWords::isNotStopWord);
     }
 
-    private BiFunction<Map<String, Long>, String, Map<String, Long>> termCount() {
+    private BiFunction<Map<String, Double>, String, Map<String, Double>> termCount() {
         return (counter, word) -> {
-            Long count = counter.getOrDefault(word, 0L);
-            counter.put(word, count + 1);
+            Double count = counter.getOrDefault(word, 0.0);
+            counter.put(word, count + 1.0);
             return counter;
         };
     }
 
-    private BinaryOperator<Map<String, Long>> mergeCounters() {
+    public static BinaryOperator<Map<String, Double>> mergeCounters() {
         return (left, right) -> {
-            Map<String, Long> mergedCounter = new HashMap<>();
+            Map<String, Double> mergedCounter = new HashMap<>();
             left.keySet().forEach(word -> {
-                Long counterSoFar = mergedCounter.getOrDefault(word, 0L);
+                Double counterSoFar = mergedCounter.getOrDefault(word, 0.0);
                 mergedCounter.put(word, counterSoFar + left.get(word));
             });
 
             right.keySet().forEach(word -> {
-                Long counterSoFar = mergedCounter.getOrDefault(word, 0L);
+                Double counterSoFar = mergedCounter.getOrDefault(word, 0.0);
                 mergedCounter.put(word, counterSoFar + right.get(word));
             });
 
