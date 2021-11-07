@@ -27,13 +27,15 @@ public class Crawler {
     public static void main(String[] args) throws InterruptedException, IOException {
         String startUrl = "https://www.latlong.net/countries.html";
         String outputFile = "datasets/location-info.jsonl";
+        String crawledDocsOutputDir = "crawled-docs/";
+
         loadAlreadyCrawledUrls(outputFile);
         int nrOfFetchWorkers = 10;
         int nrOfWriters = 1;
 
         LOG.info("Creating " + nrOfFetchWorkers + " fetch workers");
         for (int i = 0; i < nrOfFetchWorkers; i++) {
-            Thread fetcherThread = new Thread(new FetchWorker(urlQueue, resultQueue, crawledUrls));
+            Thread fetcherThread = new Thread(new FetchWorker(urlQueue, resultQueue, crawledUrls, crawledDocsOutputDir));
             fetcherThread.setName("FetchWorker" + i);
             fetcherThread.start();
         }

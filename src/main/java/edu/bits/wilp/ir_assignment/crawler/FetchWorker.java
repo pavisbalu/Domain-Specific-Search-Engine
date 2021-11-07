@@ -1,8 +1,11 @@
 package edu.bits.wilp.ir_assignment.crawler;
 
+import com.google.common.base.Joiner;
 import com.google.common.hash.BloomFilter;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,7 +14,12 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -21,14 +29,16 @@ public class FetchWorker implements Runnable {
     private static final int WAIT_TIME_IN_MS = 3 * 1000; // seconds
     public static final int POLITENESS_DELAY_IN_MS = 2 * 1000; // seconds
 
-    private LinkedBlockingQueue<String> fetchQueue;
-    private LinkedBlockingQueue<Data> outQueue;
-    private BloomFilter<String> crawledUrls;
+    private final String crawledDocsOutputDir;
+    private final LinkedBlockingQueue<String> fetchQueue;
+    private final LinkedBlockingQueue<Data> outQueue;
+    private final BloomFilter<String> crawledUrls;
 
-    public FetchWorker(LinkedBlockingQueue<String> fetchQueue, LinkedBlockingQueue<Data> outQueue, BloomFilter<String> crawledUrls) {
+    public FetchWorker(LinkedBlockingQueue<String> fetchQueue, LinkedBlockingQueue<Data> outQueue, BloomFilter<String> crawledUrls, String crawledDocsOutputDir) {
         this.fetchQueue = fetchQueue;
         this.outQueue = outQueue;
         this.crawledUrls = crawledUrls;
+        this.crawledDocsOutputDir = crawledDocsOutputDir;
     }
 
     @Override
@@ -99,10 +109,27 @@ public class FetchWorker implements Runnable {
         }
     }
 
-    private Document fetch(String url) {
-        HttpResponse<String> response = Unirest.get(url).asString();
-        String body = response.getBody();
-        return Jsoup.parse(body, url);
+    private Document fetch(String url) throws IOException {
+        String filename = DigestUtils.md5Hex(url);
+        File fetchedDocument = new File(crawledDocsOutputDir, filename);
+        // if url exist, locally use that instead of fetching them again
+        if (fetchedDocument.exists()) {
+            LOG.info("Cached copy found, using that for: " + url);
+            List<String> lines = IOUtils.readLines(new FileInputStream(fetchedDocument), "UTF-8");
+            String body = Joiner.on('\n').join(lines);
+            return Jsoup.parse(body, url);
+        } else {
+            HttpResponse<String> response = Unirest.get(url).asString();
+            String body = response.getBody();
+            writeDocumentToDisk(body, filename);
+            return Jsoup.parse(body, url);
+        }
+    }
+
+    private void writeDocumentToDisk(String body, String filename) throws IOException {
+        try (FileOutputStream output = new FileOutputStream(crawledDocsOutputDir + filename)) {
+            IOUtils.write(body, output, "UTF-8");
+        }
     }
 
     private long toSeconds(int timeInMs) {
