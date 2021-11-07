@@ -51,8 +51,9 @@ public class FetchWorker implements Runnable {
                     LOG.warn("No work! Trying again in " + toSeconds(WAIT_TIME_IN_MS) + " seconds");
                     if (StringUtils.isNotEmpty(url) && crawledUrls.mightContain(url)) {
                         LOG.info("Skipping page: " + url);
+                    } else {
+                        Thread.sleep(WAIT_TIME_IN_MS);
                     }
-                    Thread.sleep(WAIT_TIME_IN_MS);
                     continue;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e.getMessage(), e);
@@ -112,7 +113,7 @@ public class FetchWorker implements Runnable {
     private Document fetch(String url) throws IOException {
         String filename = DigestUtils.md5Hex(url);
         File fetchedDocument = new File(crawledDocsOutputDir, filename);
-        // if url exist, locally use that instead of fetching them again
+        // if url exist locally use that instead of fetching them again
         if (fetchedDocument.exists()) {
             LOG.info("Cached copy found, using that for: " + url);
             List<String> lines = IOUtils.readLines(new FileInputStream(fetchedDocument), "UTF-8");
