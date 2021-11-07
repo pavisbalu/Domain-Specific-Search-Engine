@@ -3,6 +3,7 @@ package edu.bits.wilp.ir_assignment.crawler;
 import com.google.common.hash.BloomFilter;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,12 +36,11 @@ public class FetchWorker implements Runnable {
         while (true) {
             LOG.trace("Polling for work.");
             String url = fetchQueue.poll();
-            boolean alreadyCrawled = crawledUrls.mightContain(url);
-            if (url == null || alreadyCrawled) {
+            if (url == null || crawledUrls.mightContain(url)) {
                 try {
                     LOG.warn("No work! Trying again in " + toSeconds(WAIT_TIME_IN_MS) + " seconds");
-                    if (alreadyCrawled) {
-                        LOG.warn("Skipping page: " + url);
+                    if (StringUtils.isNotEmpty(url) && crawledUrls.mightContain(url)) {
+                        LOG.info("Skipping page: " + url);
                     }
                     Thread.sleep(WAIT_TIME_IN_MS);
                     continue;
@@ -49,7 +49,7 @@ public class FetchWorker implements Runnable {
                 }
             }
 
-            LOG.trace("Work found for: " + url);
+            LOG.info("Work found for: " + url);
             try {
                 // pattern 1 -- list of links, usually countries, cities, universities, etc.
                 Document document = fetch(url);
@@ -65,7 +65,7 @@ public class FetchWorker implements Runnable {
 
                 crawledUrls.put(url);
 
-                LOG.trace("Work done, taking rest before asking for work again");
+                LOG.info("Work complete for: " + url);
                 // Politeness Delay for the site
                 Thread.sleep(POLITENESS_DELAY_IN_MS);
             } catch (Exception e) {
