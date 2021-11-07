@@ -28,7 +28,7 @@ public class Crawler {
         String startUrl = "https://www.latlong.net/countries.html";
         String outputFile = "datasets/location-info.jsonl";
         loadAlreadyCrawledUrls(outputFile);
-        int nrOfFetchWorkers = 3;
+        int nrOfFetchWorkers = 10;
         int nrOfWriters = 1;
 
         LOG.info("Creating " + nrOfFetchWorkers + " fetch workers");
