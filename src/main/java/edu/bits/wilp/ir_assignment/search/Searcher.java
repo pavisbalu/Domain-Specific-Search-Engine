@@ -45,7 +45,7 @@ public class Searcher {
         LOG.info("D SparseMatrix Loaded");
     }
 
-    public List<OutputRank> search(int K, String query) {
+    public SearchResult search(int K, String query) {
         LOG.info("Searching for query: " + query);
         List<String> tokens = Tokenizer.tokens(query);
         FieldVector<Decimal64> queryVectors = generateVectors(tokens);
@@ -53,20 +53,26 @@ public class Searcher {
 
         LOG.info("Searching across documents");
         // TODO: This takes about 1.5 minutes on 10K documents, we can parallelize here
-        List<OutputRank> ranks = new ArrayList<>();
+        List<OutputRecord> ranks = new ArrayList<>();
         for (int docId = 0; docId < D.getRowDimension(); docId++) {
             FieldVector<Decimal64> documentVector = D.getRowVector(docId);
 
             double sim = NumberUtil.cosineSim(queryVectors, documentVector);
             // avoid adding unrelated documents to the output
             if (sim > 0.0) {
-                ranks.add(new OutputRank(docId, sim, documents.get(docId).getText()));
+                ranks.add(new OutputRecord(docId, sim, documents.get(docId).getText()));
             }
         }
         LOG.info("Computed cosine-sim across documents");
 
         ranks.sort((o1, o2) -> Double.compare(o2.getCosineSim(), o1.getCosineSim()));
-        return ranks.stream().limit(K).collect(Collectors.toList());
+        List<OutputRecord> outputRecords = ranks.stream().limit(K).collect(Collectors.toList());
+        double precision = NumberUtil.roundDouble((double) ranks.size() / documents.size(), 4);
+        double recall = NumberUtil.roundDouble(
+                ranks.size() > 10 ? 10.0 / ranks.size() :
+                        ranks.size() == 0 ? 0 : 1,
+                4);
+        return new SearchResult(outputRecords, precision, recall);
     }
 
     private FieldVector<Decimal64> generateVectors(List<String> tokens) {
@@ -97,9 +103,11 @@ public class Searcher {
         if (args.length > 0) {
             query = args[0];
         }
-        List<OutputRank> results = searcher.search(10, query);
-        for (OutputRank result : results) {
-            System.out.println(result);
+        SearchResult result = searcher.search(10, query);
+        List<OutputRecord> records = result.getRecords();
+        System.out.println("Precision: " + result.getPrecision() + ", Recall: " + result.getRecall());
+        for (OutputRecord record : records) {
+            System.out.println(record);
         }
     }
 }

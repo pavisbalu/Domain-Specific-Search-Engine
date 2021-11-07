@@ -30,6 +30,11 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
+        </dependency>
 
 
         <!-- Logging Dependencies -->
@@ -67,7 +72,6 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
