@@ -30,7 +30,7 @@ public class Crawler {
         String crawledDocsOutputDir = "crawled-docs/";
 
         loadAlreadyCrawledUrls(outputFile);
-        int nrOfFetchWorkers = 10;
+        int nrOfFetchWorkers = 3;
         int nrOfWriters = 1;
 
         LOG.info("Creating " + nrOfFetchWorkers + " fetch workers");

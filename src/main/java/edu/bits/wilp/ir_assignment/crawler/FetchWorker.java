@@ -120,6 +120,9 @@ public class FetchWorker implements Runnable {
             return Jsoup.parse(body, url);
         } else {
             HttpResponse<String> response = Unirest.get(url).asString();
+            if (!response.isSuccess()) {
+                throw new RuntimeException(String.format("Invalid page. Got %s (%d) for: %s", response.getStatusText(), response.getStatus(), url));
+            }
             String body = response.getBody();
             writeDocumentToDisk(body, filename);
             return Jsoup.parse(body, url);
