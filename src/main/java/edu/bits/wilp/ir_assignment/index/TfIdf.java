@@ -2,7 +2,13 @@ package edu.bits.wilp.ir_assignment.index;
 
 import java.util.*;
 
-// We'll persist the instance of this class as the index file (aka) model
+/**
+ * Represents the TF-IDF table along with few more metadata that is used for searching. This class represents
+ * the TF-IDF model that's serialized to disk using <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>
+ * framework.
+ *
+ * In order to save space and faster lookups, we persist the vocab and tfIdVectors separately.
+ */
 public class TfIdf implements Iterable<TfIdItem> {
     private final int totalDocuments;
     private final List<String> vocab;
@@ -21,6 +27,12 @@ public class TfIdf implements Iterable<TfIdItem> {
         this.documentFrequencies = documentFrequencies;
     }
 
+    /**
+     * Add tfIdf value within the table for a given document and token combination.
+     * @param docId
+     * @param token
+     * @param tfIdf
+     */
     public void add(int docId, String token, double tfIdf) {
         int tokenAsVocabId = vocab.indexOf(token);
         if (tokenAsVocabId == -1) {

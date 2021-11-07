@@ -21,6 +21,9 @@ public class DocumentTokenizer {
         this.tf = new HashMap<>();
     }
 
+    /**
+     * Start the tokenization and Term frequency calculation for the document
+     */
     public void process() {
         // we don't want to tokenize the document twice and mess up the termFrequency calculations
         if (tf.size() > 0) {

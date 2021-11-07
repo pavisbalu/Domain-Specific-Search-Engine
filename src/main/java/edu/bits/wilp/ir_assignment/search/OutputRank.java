@@ -1,5 +1,8 @@
 package edu.bits.wilp.ir_assignment.search;
 
+/**
+ * POJO representing the final output that's returned from {@link Searcher} instance.
+ */
 public class OutputRank {
     private final int docId;
     private final double cosineSim;

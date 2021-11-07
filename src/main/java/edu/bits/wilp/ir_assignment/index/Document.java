@@ -1,5 +1,9 @@
 package edu.bits.wilp.ir_assignment.index;
 
+/**
+ * Model that's persisted to disk. We store this file so while searching using the {@link TfIdf} model,
+ * we can also retrieve the actual documents and present it to the users.
+ */
 public class Document {
     private final int docId;
     private final String text;

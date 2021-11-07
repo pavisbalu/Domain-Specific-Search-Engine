@@ -6,6 +6,9 @@ import com.esotericsoftware.kryo.io.Output;
 
 import java.io.*;
 
+/**
+ * Utility wrapper for working with <a href="https://github.com/EsotericSoftware/kryo">Kryo</a> Framework.
+ */
 public class KryoSerDe {
     private final static Kryo kryo = new Kryo();
 

@@ -1,5 +1,9 @@
 package edu.bits.wilp.ir_assignment.index;
 
+/**
+ * Represents a POJO that is used when iterating over {@link TfIdf}. This is more readable than a
+ * {@link java.util.Map.Entry} instance. Also, JDK doesn't have Tuple-n classes for easy manipulation.
+ */
 public class TfIdItem {
     private final String token;
     private final int docId;

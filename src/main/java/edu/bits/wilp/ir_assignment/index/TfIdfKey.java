@@ -2,6 +2,9 @@ package edu.bits.wilp.ir_assignment.index;
 
 import java.util.Objects;
 
+/**
+ * Represents the Tuple in {@link TfIdf}
+ */
 public class TfIdfKey {
     private final int docId;
     private final int tokenAsVocabId;
