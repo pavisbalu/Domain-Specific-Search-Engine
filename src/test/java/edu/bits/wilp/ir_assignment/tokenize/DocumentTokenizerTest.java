@@ -18,7 +18,6 @@ public class DocumentTokenizerTest {
 
         Map<String, Double> termFrequency = documentTokenizer.tf();
         assertThat(termFrequency.get("tabl"), is(0.0834)); // 1 / 12
-        assertThat(termFrequency.get("book"), is(0.1667)); // 2 / 12
     }
 
 }
