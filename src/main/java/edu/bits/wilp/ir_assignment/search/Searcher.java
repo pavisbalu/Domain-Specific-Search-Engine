@@ -1,5 +1,7 @@
 package edu.bits.wilp.ir_assignment.search;
 
+import edu.bits.wilp.ir_assignment.index.Document;
+import edu.bits.wilp.ir_assignment.index.Documents;
 import edu.bits.wilp.ir_assignment.index.TfIdItem;
 import edu.bits.wilp.ir_assignment.index.TfIdf;
 import edu.bits.wilp.ir_assignment.tokenize.Counter;
@@ -24,9 +26,11 @@ public class Searcher {
     private static final Logger LOG = LoggerFactory.getLogger(Searcher.class);
     private TfIdf tfIdf;
     private SparseFieldMatrix<Decimal64> D;
+    private List<Document> documents;
 
-    public Searcher(TfIdf tfIdf) {
+    public Searcher(TfIdf tfIdf, List<Document> documents) {
         this.tfIdf = tfIdf;
+        this.documents = documents;
         // document vectors (sparse matrix)
         D = new SparseFieldMatrix<>(Decimal64Field.getInstance(), tfIdf.N(), tfIdf.size());
 
@@ -70,7 +74,7 @@ public class Searcher {
             double sim = NumberUtil.cosineSim(queryVectors, documentVector);
             // avoid adding unrelated documents to the output
             if (sim > 0.0) {
-                ranks.add(new OutputRank(docId, sim));
+                ranks.add(new OutputRank(docId, sim, documents.get(docId).getText()));
             }
         }
         LOG.info("Computed cosine-sim across documents");
@@ -82,9 +86,15 @@ public class Searcher {
 
     public static void main(String[] args) throws FileNotFoundException {
         String modelFile = "output.bin";
+        String documentFile = "documents.bin";
         TfIdf tfIdf = KryoSerDe.readFromFile(modelFile, TfIdf.class);
-        Searcher searcher = new Searcher(tfIdf);
-        List<OutputRank> results = searcher.search(10, "table");
+        Documents documents = KryoSerDe.readFromFile(documentFile, Documents.class);
+        Searcher searcher = new Searcher(tfIdf, documents.getDocuments());
+        String query = "table";
+        if (args.length > 1) {
+            query = args[0];
+        }
+        List<OutputRank> results = searcher.search(10, query);
         for (OutputRank result : results) {
             System.out.println(result);
         }

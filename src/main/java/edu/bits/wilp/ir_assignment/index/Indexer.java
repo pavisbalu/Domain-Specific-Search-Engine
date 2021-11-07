@@ -52,7 +52,7 @@ public class Indexer {
 
         LOG.info("Persisting the documents: " + documentsFile);
         List<Document> docsForPersist = documents.stream().map(d -> new Document(d.docId, d.text)).collect(Collectors.toList());
-        KryoSerDe.writeToFile(docsForPersist, documentsFile);
+        KryoSerDe.writeToFile(new Documents(docsForPersist), documentsFile);
 
         LOG.info("Indexing Complete");
     }
