@@ -91,7 +91,7 @@ public class Searcher {
         Documents documents = KryoSerDe.readFromFile(documentFile, Documents.class);
         Searcher searcher = new Searcher(tfIdf, documents.getDocuments());
         String query = "table";
-        if (args.length > 1) {
+        if (args.length > 0) {
             query = args[0];
         }
         List<OutputRank> results = searcher.search(10, query);
