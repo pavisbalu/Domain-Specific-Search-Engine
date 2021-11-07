@@ -62,6 +62,7 @@ public class Searcher {
         LOG.info("Computed Query Vectors");
 
         LOG.info("Searching across documents");
+        // TODO: This takes about 1.5 minutes on 10K documents, we can parallelize here
         List<OutputRank> ranks = new ArrayList<>();
         for (int docId = 0; docId < D.getRowDimension(); docId++) {
             FieldVector<Decimal64> documentVector = D.getRowVector(docId);
@@ -72,7 +73,7 @@ public class Searcher {
                 ranks.add(new OutputRank(docId, sim));
             }
         }
-        LOG.info("Computed cosinesim across documents");
+        LOG.info("Computed cosine-sim across documents");
 
         ranks.sort((o1, o2) -> Double.compare(o2.getCosineSim(), o1.getCosineSim()));
         return ranks.stream().limit(K).collect(Collectors.toList());
