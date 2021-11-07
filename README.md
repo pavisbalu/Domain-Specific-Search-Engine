@@ -41,6 +41,8 @@ Precision: 0.254, Recall: 0.0394
 {"docId":417,"cosineSim":0.34582351290496915,"document":"Got this for my grandmother and she absolutely loves it."}
 ```
 
+The `sample.csv` that's part of the source code contains the top 1000 records from the [Amazon Product Review Dataset](https://www.kaggle.com/datafiniti/consumer-reviews-of-amazon-products).
+
 ## Citations / References
 - Stopwords used are from https://www.ranks.nl/stopwords. We use the very large stop word list.
 

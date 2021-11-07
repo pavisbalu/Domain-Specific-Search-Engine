@@ -3,6 +3,7 @@ package edu.bits.wilp.ir_assignment.index;
 import edu.bits.wilp.ir_assignment.tokenize.DocumentTokenizer;
 import edu.bits.wilp.ir_assignment.utils.KryoSerDe;
 import edu.bits.wilp.ir_assignment.utils.NumberUtil;
+import edu.bits.wilp.ir_assignment.utils.SystemUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class Indexer {
     private static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
 
     public static void main(String[] args) throws IOException {
+        SystemUtil.disableWarning();
         new Indexer().index("datasets/sample.csv", "reviews.text", "output.bin", "documents.bin");
     }
 

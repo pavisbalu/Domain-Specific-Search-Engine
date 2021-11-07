@@ -8,6 +8,7 @@ import edu.bits.wilp.ir_assignment.tokenize.Counter;
 import edu.bits.wilp.ir_assignment.tokenize.Tokenizer;
 import edu.bits.wilp.ir_assignment.utils.KryoSerDe;
 import edu.bits.wilp.ir_assignment.utils.NumberUtil;
+import edu.bits.wilp.ir_assignment.utils.SystemUtil;
 import org.apache.commons.math3.linear.FieldVector;
 import org.apache.commons.math3.linear.SparseFieldMatrix;
 import org.apache.commons.math3.linear.SparseFieldVector;
@@ -94,6 +95,8 @@ public class Searcher {
 
 
     public static void main(String[] args) throws FileNotFoundException {
+        SystemUtil.disableWarning();
+
         String modelFile = "output.bin";
         String documentFile = "documents.bin";
         TfIdf tfIdf = KryoSerDe.readFromFile(modelFile, TfIdf.class);
