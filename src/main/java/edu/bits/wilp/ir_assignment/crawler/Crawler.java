@@ -21,8 +21,8 @@ public class Crawler {
     // for work and fetch the results. If we've reached the final page then we'll write the results separately.
     private static final LinkedBlockingQueue<String> urlQueue = new LinkedBlockingQueue<>();
     private static final LinkedBlockingQueue<Data> resultQueue = new LinkedBlockingQueue<>();
-    // 20K is an estimate, it should be relatively less than that
-    private static final BloomFilter<String> crawledUrls = BloomFilter.create(Funnels.stringFunnel(Charset.forName("UTF-8")), 20_000);
+    // 1M is an over estimate, it should be relatively less than that
+    private static final BloomFilter<String> crawledUrls = BloomFilter.create(Funnels.stringFunnel(Charset.forName("UTF-8")), 1_000_000);
 
     public static void main(String[] args) throws InterruptedException, IOException {
         String startUrl = "https://www.latlong.net/countries.html";
