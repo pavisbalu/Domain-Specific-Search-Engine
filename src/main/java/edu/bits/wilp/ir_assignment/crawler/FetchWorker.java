@@ -51,6 +51,8 @@ public class FetchWorker implements Runnable {
                 // patten 2 -- actual places in a table with lat, long information
                 Elements linksOnTable = document.select("main>table>tbody>tr>td>a");
                 addToFetchQueue(linksOnTable);
+                Elements nextLinks = document.select("a:contains(next)");
+                addToFetchQueue(nextLinks);
                 // pattern 3 -- final info page
                 extractInfoPage(url, document);
 
@@ -82,7 +84,9 @@ public class FetchWorker implements Runnable {
     private void addToFetchQueue(Elements linksOnTable) throws InterruptedException {
         for (Element e : linksOnTable) {
             String urlToFetch = e.absUrl("href");
-            fetchQueue.offer(urlToFetch, 60, TimeUnit.MINUTES);
+            if (!urlToFetch.endsWith("#")) {
+                fetchQueue.offer(urlToFetch, 60, TimeUnit.MINUTES);
+            }
         }
     }
 
