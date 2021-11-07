@@ -8,8 +8,11 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Indexer {
     private static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
@@ -46,7 +49,12 @@ public class Indexer {
         LOG.info("Tf-Idf calculations, done. Writing the model file: " + modelFile);
 
         KryoSerDe.writeToFile(tfIdfTable, modelFile);
-        KryoSerDe.writeToFile(documents, documentsFile);
+
+        LOG.info("Persisting the documents: " + documentsFile);
+        List<Document> docsForPersist = documents.stream().map(d -> new Document(d.docId, d.text)).collect(Collectors.toList());
+        KryoSerDe.writeToFile(docsForPersist, documentsFile);
+
+        LOG.info("Indexing Complete");
     }
 
     private List<DocumentMeta> processDocuments(String fieldName, Iterable<CSVRecord> records) {
@@ -57,7 +65,7 @@ public class Indexer {
             DocumentTokenizer document = new DocumentTokenizer(List.of(reviewsText));
             document.process();
             Map<String, Double> docTf = document.tf();
-            documents.add(new DocumentMeta(docTf, docId));
+            documents.add(new DocumentMeta(docTf, docId, reviewsText));
 
             // update the docId, so we can consider each review as a new document
             docId++;

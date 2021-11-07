@@ -6,10 +6,12 @@ import java.util.Set;
 public class DocumentMeta {
     private final Map<String, Double> tf;
     public final int docId;
+    public final String text;
 
-    public DocumentMeta(Map<String, Double> tf, int docId) {
+    public DocumentMeta(Map<String, Double> tf, int docId, String text) {
         this.tf = tf;
         this.docId = docId;
+        this.text = text;
     }
 
     public Set<String> tokens() {
