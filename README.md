@@ -22,22 +22,23 @@ $ java -cp target/ir_assignment-1.0-SNAPSHOT.jar edu.bits.wilp.ir_assignment.ind
 
 ## Searching against this model
 $ java -cp target/ir_assignment-1.0-SNAPSHOT.jar edu.bits.wilp.ir_assignment.search.Searcher "love tablet"
-09:30:25.380 [main] INFO  e.b.w.ir_assignment.search.Searcher - Loading D SparseMatrix
-09:30:25.470 [main] INFO  e.b.w.ir_assignment.search.Searcher - D SparseMatrix Loaded
-09:30:25.497 [main] INFO  e.b.w.ir_assignment.search.Searcher - Searching for query: love tablet
-09:30:25.543 [main] INFO  e.b.w.ir_assignment.search.Searcher - Computed Query Vectors
-09:30:25.543 [main] INFO  e.b.w.ir_assignment.search.Searcher - Searching across documents
-09:30:26.453 [main] INFO  e.b.w.ir_assignment.search.Searcher - Computed cosine-sim across documents
-OutputRank{docId=463, cosineSim=0.816370774647198, document='Love the tablet! Easy to use and easy to take with'}
-OutputRank{docId=570, cosineSim=0.7069005655369549, document='I love the amazon tablet very much and love to use'}
-OutputRank{docId=137, cosineSim=0.631736058859506, document='Good tablet. Wife loves it and would recommend....'}
-OutputRank{docId=231, cosineSim=0.6308758405740864, document='I got this tablet on sale for my wife and she loves it'}
-OutputRank{docId=698, cosineSim=0.618752056932315, document='We have had no issues with this tablet. Love it!TY'}
-OutputRank{docId=761, cosineSim=0.5772570526908305, document='I love to read and this tablet work great for my needs.'}
-OutputRank{docId=680, cosineSim=0.5771066450965584, document='This is a great tablet with great features. I love my kindle.'}
-OutputRank{docId=566, cosineSim=0.5768396132505973, document='great tablet to replace kindle. Love the features.'}
-OutputRank{docId=755, cosineSim=0.5764721594546459, document='No problems with tablet, kids love it and the size is great'}
-OutputRank{docId=508, cosineSim=0.5761544749214773, document='My daughter love this tablet! Easy to use and carry'}
+10:54:32.419 [main] INFO  e.b.w.ir_assignment.search.Searcher - Loading D SparseMatrix
+10:54:32.512 [main] INFO  e.b.w.ir_assignment.search.Searcher - D SparseMatrix Loaded
+10:54:32.538 [main] INFO  e.b.w.ir_assignment.search.Searcher - Searching for query: love table
+10:54:32.605 [main] INFO  e.b.w.ir_assignment.search.Searcher - Computed Query Vectors
+10:54:32.606 [main] INFO  e.b.w.ir_assignment.search.Searcher - Searching across documents
+10:54:33.910 [main] INFO  e.b.w.ir_assignment.search.Searcher - Computed cosine-sim across documents
+Precision: 0.254, Recall: 0.0394
+{"docId":37,"cosineSim":0.47244385850822546,"document":"My children love this table great quality of pictures, excellent camera"}
+{"docId":463,"cosineSim":0.40358427359665505,"document":"Love the tablet! Easy to use and easy to take with"}
+{"docId":14,"cosineSim":0.403362560227578,"document":"Got it as a present and love the size of the screen"}
+{"docId":570,"cosineSim":0.3494586192465874,"document":"I love the amazon tablet very much and love to use"}
+{"docId":621,"cosineSim":0.34905953708265014,"document":"Love my kindle it does everything I wanted I to do."}
+{"docId":981,"cosineSim":0.34898384370701396,"document":"My wife loved her gift. I made the right purchase."}
+{"docId":666,"cosineSim":0.3485084614225623,"document":"bought it as a gift for my mother and she loves it"}
+{"docId":625,"cosineSim":0.3482165593865239,"document":"I got this for my husband birthday and he loves it"}
+{"docId":876,"cosineSim":0.3469500809960075,"document":"She loves it . it's the best thing we could of ever brought her"}
+{"docId":417,"cosineSim":0.34582351290496915,"document":"Got this for my grandmother and she absolutely loves it."}
 ```
 
 ## Citations / References
