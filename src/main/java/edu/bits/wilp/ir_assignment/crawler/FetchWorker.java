@@ -93,7 +93,7 @@ public class FetchWorker implements Runnable {
     private void addToFetchQueue(Elements linksOnTable) throws InterruptedException {
         for (Element e : linksOnTable) {
             String urlToFetch = e.absUrl("href");
-            if (!urlToFetch.endsWith("#")) {
+            if (!urlToFetch.endsWith("#") && !crawledUrls.mightContain(urlToFetch)) {
                 fetchQueue.offer(urlToFetch, 60, TimeUnit.MINUTES);
             }
         }
