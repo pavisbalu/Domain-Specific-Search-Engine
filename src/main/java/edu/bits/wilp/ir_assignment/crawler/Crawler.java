@@ -1,8 +1,17 @@
 package edu.bits.wilp.ir_assignment.crawler;
 
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
+import edu.bits.wilp.ir_assignment.utils.JsonSerDe;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Crawler {
@@ -12,16 +21,19 @@ public class Crawler {
     // for work and fetch the results. If we've reached the final page then we'll write the results separately.
     private static final LinkedBlockingQueue<String> urlQueue = new LinkedBlockingQueue<>();
     private static final LinkedBlockingQueue<Data> resultQueue = new LinkedBlockingQueue<>();
+    // 20K is an estimate, it should be relatively less than that
+    private static final BloomFilter<String> crawledUrls = BloomFilter.create(Funnels.stringFunnel(Charset.forName("UTF-8")), 20_000);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         String startUrl = "https://www.latlong.net/countries.html";
         String outputFile = "datasets/location-info.jsonl";
+        loadAlreadyCrawledUrls(outputFile);
         int nrOfFetchWorkers = 3;
         int nrOfWriters = 1;
 
         LOG.info("Creating " + nrOfFetchWorkers + " fetch workers");
         for (int i = 0; i < nrOfFetchWorkers; i++) {
-            Thread fetcherThread = new Thread(new FetchWorker(urlQueue, resultQueue));
+            Thread fetcherThread = new Thread(new FetchWorker(urlQueue, resultQueue, crawledUrls));
             fetcherThread.setName("FetchWorker" + i);
             fetcherThread.start();
         }
@@ -36,6 +48,17 @@ public class Crawler {
         LOG.info("Adding the start url to the queue");
         urlQueue.offer(startUrl);
         Thread.currentThread().join();
+    }
+
+    private static void loadAlreadyCrawledUrls(String outputFile) throws IOException {
+        if (new File(outputFile).exists()) {
+            List<String> lines = IOUtils.readLines(new FileInputStream(outputFile), "UTF-8");
+            for (String dataAsJson : lines) {
+                Data data = JsonSerDe.fromJson(dataAsJson, Data.class);
+                crawledUrls.put(data.getUrl());
+            }
+            LOG.info("Loaded information about " + lines.size() + " urls");
+        }
     }
 
 }

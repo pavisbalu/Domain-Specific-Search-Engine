@@ -8,4 +8,8 @@ public class JsonSerDe {
     public static String toJson(Object value) {
         return mapper.writeValue(value);
     }
+
+    public static <T> T fromJson(String json, Class<T> type) {
+        return mapper.readValue(json, type);
+    }
 }

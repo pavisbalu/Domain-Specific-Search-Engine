@@ -1,5 +1,6 @@
 package edu.bits.wilp.ir_assignment.crawler;
 
+import com.google.common.hash.BloomFilter;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
@@ -21,20 +22,26 @@ public class FetchWorker implements Runnable {
 
     private LinkedBlockingQueue<String> fetchQueue;
     private LinkedBlockingQueue<Data> outQueue;
+    private BloomFilter<String> crawledUrls;
 
-    public FetchWorker(LinkedBlockingQueue<String> fetchQueue, LinkedBlockingQueue<Data> outQueue) {
+    public FetchWorker(LinkedBlockingQueue<String> fetchQueue, LinkedBlockingQueue<Data> outQueue, BloomFilter<String> crawledUrls) {
         this.fetchQueue = fetchQueue;
         this.outQueue = outQueue;
+        this.crawledUrls = crawledUrls;
     }
 
     @Override
     public void run() {
         while (true) {
-            LOG.info("Polling for work.");
+            LOG.trace("Polling for work.");
             String url = fetchQueue.poll();
-            if (url == null) {
+            boolean alreadyCrawled = crawledUrls.mightContain(url);
+            if (url == null || alreadyCrawled) {
                 try {
-                    LOG.info("No work! Trying again in " + toSeconds(WAIT_TIME_IN_MS) + " seconds");
+                    LOG.warn("No work! Trying again in " + toSeconds(WAIT_TIME_IN_MS) + " seconds");
+                    if (alreadyCrawled) {
+                        LOG.warn("Skipping page: " + url);
+                    }
                     Thread.sleep(WAIT_TIME_IN_MS);
                     continue;
                 } catch (InterruptedException e) {
@@ -42,7 +49,7 @@ public class FetchWorker implements Runnable {
                 }
             }
 
-            LOG.info("Work found for: " + url);
+            LOG.trace("Work found for: " + url);
             try {
                 // pattern 1 -- list of links, usually countries, cities, universities, etc.
                 Document document = fetch(url);
@@ -56,7 +63,9 @@ public class FetchWorker implements Runnable {
                 // pattern 3 -- final info page
                 extractInfoPage(url, document);
 
-                LOG.info("Work done, taking rest before asking for work again");
+                crawledUrls.put(url);
+
+                LOG.trace("Work done, taking rest before asking for work again");
                 // Politeness Delay for the site
                 Thread.sleep(POLITENESS_DELAY_IN_MS);
             } catch (Exception e) {
