@@ -62,8 +62,10 @@ public class FetchWorker implements Runnable {
 
             LOG.info("Work found for: " + url);
             try {
+                File fetchedDocument = cacheFile(url);
+                boolean cachedCopy = fetchedDocument.exists();
                 // pattern 1 -- list of links, usually countries, cities, universities, etc.
-                Document document = fetch(url);
+                Document document = fetch(url, fetchedDocument);
                 Elements linksInList = document.select("main>ul>li>a");
                 addToFetchQueue(linksInList);
                 // patten 2 -- actual places in a table with lat, long information
@@ -77,8 +79,10 @@ public class FetchWorker implements Runnable {
                 crawledUrls.put(url);
 
                 LOG.info("Work complete for: " + url);
-                // Politeness Delay for the site
-                Thread.sleep(POLITENESS_DELAY_IN_MS);
+                if (!cachedCopy) {
+                    // Politeness Delay for the site
+                    Thread.sleep(POLITENESS_DELAY_IN_MS);
+                }
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
@@ -110,9 +114,7 @@ public class FetchWorker implements Runnable {
         }
     }
 
-    private Document fetch(String url) throws IOException {
-        String filename = DigestUtils.md5Hex(url);
-        File fetchedDocument = new File(crawledDocsOutputDir, filename);
+    private Document fetch(String url, File fetchedDocument) throws IOException {
         // if url exist locally use that instead of fetching them again
         if (fetchedDocument.exists()) {
             LOG.info("Cached copy found, using that for: " + url);
@@ -125,13 +127,19 @@ public class FetchWorker implements Runnable {
                 throw new RuntimeException(String.format("Invalid page. Got %s (%d) for: %s", response.getStatusText(), response.getStatus(), url));
             }
             String body = response.getBody();
-            writeDocumentToDisk(body, filename);
+            writeDocumentToDisk(body, fetchedDocument);
             return Jsoup.parse(body, url);
         }
     }
 
-    private void writeDocumentToDisk(String body, String filename) throws IOException {
-        try (FileOutputStream output = new FileOutputStream(crawledDocsOutputDir + filename)) {
+    private File cacheFile(String url) {
+        String filename = DigestUtils.md5Hex(url);
+        File fetchedDocument = new File(crawledDocsOutputDir, filename);
+        return fetchedDocument;
+    }
+
+    private void writeDocumentToDisk(String body, File filename) throws IOException {
+        try (FileOutputStream output = new FileOutputStream(filename)) {
             IOUtils.write(body, output, "UTF-8");
         }
     }
