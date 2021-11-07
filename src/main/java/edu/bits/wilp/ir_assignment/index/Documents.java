@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wrapper for {@link List<Document>} for Kryo
+ * Wrapper for List&lt;{@link Document}&gt; for Kryo
  */
 public class Documents {
     private final List<Document> documents;

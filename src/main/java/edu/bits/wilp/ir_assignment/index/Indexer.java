@@ -14,6 +14,9 @@ import java.io.Reader;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Indexes the documents and writes the tf-idf and document models.
+ */
 public class Indexer {
     private static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
 
@@ -24,11 +27,7 @@ public class Indexer {
     /**
      * Start the indexing process.
      *
-     * @param filename
-     * @param inputFile
-     * @param modelFile
-     * @param documentsFile
-     * @throws IOException
+     * @throws IOException IOException
      */
     public void index(String filename, String inputFile, String modelFile, String documentsFile) throws IOException {
         LOG.info("Opening " + filename + " for reading");

@@ -29,9 +29,6 @@ public class TfIdf implements Iterable<TfIdItem> {
 
     /**
      * Add tfIdf value within the table for a given document and token combination.
-     * @param docId
-     * @param token
-     * @param tfIdf
      */
     public void add(int docId, String token, double tfIdf) {
         int tokenAsVocabId = vocab.indexOf(token);

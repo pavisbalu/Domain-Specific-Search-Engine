@@ -27,6 +27,8 @@ public class NumberUtil {
      *     cos-sim(l, r) = dot(l,r) / (norm(l) * norm(r))
      * </pre>
      *
+     * @param left Vector 1
+     * @param right Vector 2
      * @return double number representing similarity. value is between 0 and 1.
      */
     // cos-sim(l, r) = dot(l,r) / (norm(l) * norm(r))
@@ -41,6 +43,7 @@ public class NumberUtil {
      * Computes the <a href="https://mathworld.wolfram.com/FrobeniusNorm.html">Frobenius norm or Euclidean norm</a>
      * of a given vector.
      *
+     * @param vector Vector
      * @return {@link Decimal64} value representing the norm.
      */
     public static Decimal64 norm(FieldVector<Decimal64> vector) {

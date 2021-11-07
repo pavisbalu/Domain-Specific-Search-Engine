@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Tokenizer tokenize the input into {@link List<String>} of tokens.
+ * Tokenizer tokenize the input into List&lt;{@link String}&gt; of tokens.
  * The steps are as follows:
  * <ol>
  * <li>Lowercase the input</li>

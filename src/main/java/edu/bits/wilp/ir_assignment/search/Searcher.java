@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Uses the {@link TfIdf} and {@link Document} models to search a given query and return the response.
+ */
 public class Searcher {
     private static final Logger LOG = LoggerFactory.getLogger(Searcher.class);
     private TfIdf tfIdf;
@@ -40,23 +43,6 @@ public class Searcher {
             D.setEntry(tfIdItem.getDocId(), index, new Decimal64(tfIdItem.getTfId()));
         }
         LOG.info("D SparseMatrix Loaded");
-    }
-
-    public FieldVector<Decimal64> generateVectors(List<String> tokens) {
-        SparseFieldVector<Decimal64> Q = new SparseFieldVector<>(Decimal64Field.getInstance(), tfIdf.size());
-
-        Map<String, Double> counter = Counter.of(tokens);
-        int wordsCount = counter.size();
-        for (String token : tokens) {
-            double tf = counter.get(token) / wordsCount;
-            double df = tfIdf.DF(token);
-            double idf = Math.log((tfIdf.size() + 1) / (df + 1));
-
-            int index = tfIdf.indexOf(token);
-            Q.setEntry(index, new Decimal64(tf * idf));
-        }
-
-        return Q;
     }
 
     public List<OutputRank> search(int K, String query) {
@@ -81,6 +67,23 @@ public class Searcher {
 
         ranks.sort((o1, o2) -> Double.compare(o2.getCosineSim(), o1.getCosineSim()));
         return ranks.stream().limit(K).collect(Collectors.toList());
+    }
+
+    private FieldVector<Decimal64> generateVectors(List<String> tokens) {
+        SparseFieldVector<Decimal64> Q = new SparseFieldVector<>(Decimal64Field.getInstance(), tfIdf.size());
+
+        Map<String, Double> counter = Counter.of(tokens);
+        int wordsCount = counter.size();
+        for (String token : tokens) {
+            double tf = counter.get(token) / wordsCount;
+            double df = tfIdf.DF(token);
+            double idf = Math.log((tfIdf.size() + 1) / (df + 1));
+
+            int index = tfIdf.indexOf(token);
+            Q.setEntry(index, new Decimal64(tf * idf));
+        }
+
+        return Q;
     }
 
 
