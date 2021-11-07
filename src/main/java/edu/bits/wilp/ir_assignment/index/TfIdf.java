@@ -4,21 +4,21 @@ import java.util.*;
 
 // We'll persist the instance of this class as the index file (aka) model
 public class TfIdf implements Iterable<TfIdItem> {
-    private final int N;
+    private final int totalDocuments;
     private final List<String> vocab;
     private final Map<TfIdfKey, Double> tfIdfVectors;
-    private final Map<String, Double> DF;
+    private final Map<String, Double> documentFrequencies;
 
     // for kryo
     private TfIdf() {
         this(0, new HashMap<>());
     }
 
-    public TfIdf(int totalDocuments, Map<String, Double> DF) {
-        N = totalDocuments;
+    public TfIdf(int totalDocuments, Map<String, Double> documentFrequencies) {
+        this.totalDocuments = totalDocuments;
         vocab = new ArrayList<>();
         tfIdfVectors = new HashMap<>();
-        this.DF = DF;
+        this.documentFrequencies = documentFrequencies;
     }
 
     public void add(int docId, String token, double tfIdf) {
@@ -36,7 +36,7 @@ public class TfIdf implements Iterable<TfIdItem> {
 
     // Size of the documents
     public int N() {
-        return N;
+        return totalDocuments;
     }
 
     // Size of the vocab
@@ -45,7 +45,7 @@ public class TfIdf implements Iterable<TfIdItem> {
     }
 
     public double DF(String token) {
-        return this.DF.getOrDefault(token, 0.0);
+        return this.documentFrequencies.getOrDefault(token, 0.0);
     }
 
     @Override
@@ -65,9 +65,5 @@ public class TfIdf implements Iterable<TfIdItem> {
                 return new TfIdItem(vocab.get(key.getTokenAsVocabId()), key.getDocId(), kv.getValue());
             }
         };
-    }
-
-    public Double get(TfIdfKey key) {
-        return tfIdfVectors.get(key);
     }
 }

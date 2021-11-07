@@ -1,7 +1,11 @@
 package edu.bits.wilp.ir_assignment.utils;
 
+import org.apache.commons.math3.linear.FieldVector;
+import org.apache.commons.math3.util.Decimal64;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 public class NumberUtil {
     public static double roundDouble(double value, int places) {
@@ -10,21 +14,19 @@ public class NumberUtil {
         return Double.parseDouble(df.format(value));
     }
 
-    // Ref - http://www.java2s.com/example/java-utility-method/cosine-similarity/cosinesim-double-a-double-b-e9dbc.html
-    public static double cosineSim(double[] a, double[] b) {
-        if (a == null || b == null || a.length < 1 || b.length < 1 || a.length != b.length)
-            return Double.NaN;
+    // cos-sim(l, r) = dot(l,r) / (norm(l) * norm(r))
+    public static double cosineSim(FieldVector<Decimal64> left, FieldVector<Decimal64> right) {
+        Decimal64 dot = left.dotProduct(right);
+        Decimal64 productOfNorm = norm(left).multiply(norm(right));
 
-        double sum = 0.0, sum_a = 0, sum_b = 0;
-        for (int i = 0; i < a.length; i++) {
-            sum += a[i] * b[i];
-            sum_a += a[i] * a[i];
-            sum_b += b[i] * b[i];
-        }
+        return dot.divide(productOfNorm).doubleValue();
+    }
 
-        double val = Math.sqrt(sum_a) * Math.sqrt(sum_b);
-
-        return sum / val;
+    public static Decimal64 norm(FieldVector<Decimal64> row) {
+        FieldVector<Decimal64> squares = row.ebeMultiply(row);
+        Decimal64[] fieldElements = squares.toArray();
+        Decimal64 sum = Arrays.stream(fieldElements).reduce(Decimal64.ZERO, Decimal64::add);
+        return sum.sqrt();
     }
 
 }

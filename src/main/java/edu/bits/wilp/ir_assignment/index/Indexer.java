@@ -6,10 +6,7 @@ import edu.bits.wilp.ir_assignment.utils.NumberUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.*;
 
 public class Indexer {
@@ -40,9 +37,7 @@ public class Indexer {
             }
         }
 
-        FileOutputStream outputStream = new FileOutputStream(outputFile);
-        KryoSerDe.writeToFile(tfIdfTable, outputStream);
-        outputStream.close();
+        KryoSerDe.writeToFile(tfIdfTable, outputFile);
     }
 
     private List<DocumentMeta> processDocuments(String fieldName, Iterable<CSVRecord> records) {
