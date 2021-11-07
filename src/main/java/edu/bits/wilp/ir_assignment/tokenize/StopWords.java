@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Strips of the stop words using the list from
+ * <a href="https://www.ranks.nl/stopwords">https://www.ranks.nl/stopwords</a>.
+ * We use the very large stop word list from the above link.
+ */
 public class StopWords {
     private static final Logger LOG = LoggerFactory.getLogger(StopWords.class);
 

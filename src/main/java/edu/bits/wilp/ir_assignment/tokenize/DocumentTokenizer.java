@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// Refer to tests for documentation / process
+/**
+ * DocumentTokenizer tokenizes an entire document and helps compute the TF for all the terms.
+ * Refer to {@link Tokenizer} for actual tokenizing steps
+ */
 public class DocumentTokenizer {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentTokenizer.class);
     private final List<String> linesInDocument;

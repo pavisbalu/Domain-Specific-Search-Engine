@@ -21,6 +21,15 @@ public class Indexer {
         new Indexer().index("datasets/sample.csv", "reviews.text", "output.bin", "documents.bin");
     }
 
+    /**
+     * Start the indexing process.
+     *
+     * @param filename
+     * @param inputFile
+     * @param modelFile
+     * @param documentsFile
+     * @throws IOException
+     */
     public void index(String filename, String inputFile, String modelFile, String documentsFile) throws IOException {
         LOG.info("Opening " + filename + " for reading");
         Reader in = new FileReader(filename);

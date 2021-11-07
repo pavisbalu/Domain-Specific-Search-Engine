@@ -9,14 +9,14 @@ public class StemmerTest {
     @Test
     public void testStemWord() {
         // testing nouns -- should remain unchanged
-        assertThat(Stemmer.stemWord("dog"), is("dog"));
-        assertThat(Stemmer.stemWord("queen"), is("queen"));
-        assertThat(Stemmer.stemWord("king"), is("king"));
+        assertThat(Stemmer.stem("dog"), is("dog"));
+        assertThat(Stemmer.stem("queen"), is("queen"));
+        assertThat(Stemmer.stem("king"), is("king"));
         // testing variations of adverb, adjectives, etc. which should get stemmed
-        assertThat(Stemmer.stemWord("likely"), is("like"));
-        assertThat(Stemmer.stemWord("liked"), is("like"));
-        assertThat(Stemmer.stemWord("liking"), is("like"));
-        assertThat(Stemmer.stemWord("likes"), is("like"));
+        assertThat(Stemmer.stem("likely"), is("like"));
+        assertThat(Stemmer.stem("liked"), is("like"));
+        assertThat(Stemmer.stem("liking"), is("like"));
+        assertThat(Stemmer.stem("likes"), is("like"));
     }
 
 }
