@@ -15,8 +15,8 @@ public class Document implements Iterable<Field> {
     private final Map<String, String> indexedFields;
     private final Map<String, String> nonIndexedFields;
 
-    private int docId;
-    private Map<String, Map<String, Double>> tfPerIndexedField;
+    private transient int docId;
+    private transient Map<String, Map<String, Double>> tfPerIndexedField;
 
     public Document() {
         this.indexedFields = new HashMap<>();
