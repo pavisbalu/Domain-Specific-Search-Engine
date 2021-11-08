@@ -83,12 +83,14 @@ public class Searcher {
         Map<String, Double> counter = Counter.of(tokens);
         int wordsCount = counter.size();
         for (String token : tokens) {
-            double tf = counter.get(token) / wordsCount;
-            double df = tfIdf.DF(token);
-            double idf = Math.log((tfIdf.size() + 1) / (df + 1));
-
             int index = tfIdf.indexOf(token);
-            Q.setEntry(index, new Decimal64(tf * idf));
+            if (index > -1) {
+                double tf = counter.get(token) / wordsCount;
+                double df = tfIdf.DF(token);
+                double idf = Math.log((tfIdf.size() + 1) / (df + 1));
+
+                Q.setEntry(index, new Decimal64(tf * idf));
+            }
         }
 
         return Q;
