@@ -20,15 +20,15 @@ import java.util.stream.Stream;
  */
 public class Tokenizer {
     public static List<String> tokens(String input) {
-        return new ArrayList<>(
-                Stream.of(input)
-                        .map(StringUtils::stripAccents)
-                        .map(String::toLowerCase)
-                        .map(s -> s.replaceAll("[^a-z0-9 ]", " "))
-                        .flatMap(s -> Stream.of(s.split("\\s+")))
-                        .map(Stemmer::stem)
-                        .filter(StopWords::isNotStopWord)
-                        .collect(Collectors.toSet())
-        );
+        return Stream.of(input)
+                .map(StringUtils::stripAccents)
+                .map(String::toLowerCase)
+                .map(s -> s.replaceAll("[^a-z0-9 ]", " "))
+                .flatMap(s -> Stream.of(s.split("\\s+")))
+                .map(Stemmer::stem)
+                .filter(StopWords::isNotStopWord)
+                .filter(s -> StringUtils.length(s) >= 3)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

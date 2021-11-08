@@ -17,8 +17,8 @@ public class TokenizerTest {
     public void testTokenizeInput() {
         List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tables. This the best I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
-        assertThat(tokens, hasSize(12));
-        assertThat(tokens, hasItems("tabl", "tv", "music", "read", "4", "thi", "watch", "kind", "movi",
+        assertThat(tokens, hasSize(10));
+        assertThat(tokens, hasItems("tabl", "music", "read", "thi", "watch", "kind", "movi",
                 "book", "best", "listen"));
     }
 
@@ -27,9 +27,9 @@ public class TokenizerTest {
         List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tables. This the best I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
 
-        assertThat(tokens, hasSize(12));
-        assertThat(tokens, hasItem("tv"));
+        assertThat(tokens, hasSize(10));
         assertThat(tokens, hasItem("movi"));
+        assertThat(tokens, hasItem("book"));
     }
 
     @Test
@@ -37,19 +37,19 @@ public class TokenizerTest {
         List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tàbles. This the bést I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
 
-        assertThat(tokens, hasSize(12));
+        assertThat(tokens, hasSize(10));
         assertThat(tokens, hasItem("tabl"));
         assertThat(tokens, hasItem("best"));
     }
 
     @Test
     public void testTokenizerStripsAnyNonAlphaNumericChars() {
-        List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tables. This the best I have had. " +
+        List<String> tokens = Tokenizer.tokens("I have 400 other kinds of tables. This the best I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
 
-        assertThat(tokens, hasSize(12));
+        assertThat(tokens, hasSize(11));
         assertThat(tokens, not(hasItem("movies/tv")));
-        assertThat(tokens, hasItem("4"));
+        assertThat(tokens, hasItem("400"));
         assertThat(tokens, hasItem("music"));
     }
 
@@ -58,7 +58,7 @@ public class TokenizerTest {
         List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tables. This the best I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
 
-        assertThat(tokens, hasSize(12));
+        assertThat(tokens, hasSize(10));
         assertThat(tokens, hasItem("tabl"));
     }
 
@@ -67,7 +67,7 @@ public class TokenizerTest {
         List<String> tokens = Tokenizer.tokens("I have 4 other kinds of tables. This the best I have had. " +
                 "I can listen to music, read a book, listen to a book, or watch movies/tv shows.");
 
-        assertThat(tokens, hasSize(12));
+        assertThat(tokens, hasSize(10));
         assertThat(tokens, not(hasItem("have")));
     }
 }
