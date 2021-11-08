@@ -1,11 +1,10 @@
 package edu.bits.wilp.ir_assignment.utils;
 
-import org.apache.commons.math3.linear.FieldVector;
+import edu.bits.wilp.ir_assignment.math.SparseVector;
 import org.apache.commons.math3.util.Decimal64;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 
 public class NumberUtil {
     /**
@@ -27,30 +26,15 @@ public class NumberUtil {
      *     cos-sim(l, r) = dot(l,r) / (norm(l) * norm(r))
      * </pre>
      *
-     * @param left Vector 1
+     * @param left  Vector 1
      * @param right Vector 2
      * @return double number representing similarity. value is between 0 and 1.
      */
     // cos-sim(l, r) = dot(l,r) / (norm(l) * norm(r))
-    public static double cosineSim(FieldVector<Decimal64> left, FieldVector<Decimal64> right) {
+    public static double cosineSim(SparseVector left, SparseVector right) {
         Decimal64 dot = left.dotProduct(right);
-        Decimal64 productOfNorm = norm(left).multiply(norm(right));
+        Decimal64 productOfNorm = left.norm().multiply(right.norm());
 
         return dot.divide(productOfNorm).doubleValue();
     }
-
-    /**
-     * Computes the <a href="https://mathworld.wolfram.com/FrobeniusNorm.html">Frobenius norm or Euclidean norm</a>
-     * of a given vector.
-     *
-     * @param vector Vector
-     * @return {@link Decimal64} value representing the norm.
-     */
-    public static Decimal64 norm(FieldVector<Decimal64> vector) {
-        FieldVector<Decimal64> squares = vector.ebeMultiply(vector);
-        Decimal64[] fieldElements = squares.toArray();
-        Decimal64 sum = Arrays.stream(fieldElements).reduce(Decimal64.ZERO, Decimal64::add);
-        return sum.sqrt();
-    }
-
 }
