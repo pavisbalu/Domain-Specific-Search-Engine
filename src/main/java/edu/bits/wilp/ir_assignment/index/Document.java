@@ -16,22 +16,23 @@ public class Document implements Iterable<Field> {
     private final Map<String, String> nonIndexedFields;
 
     private int docId;
-    private Map<String, Double> tf;
+    private Map<String, Map<String, Double>> tfPerIndexedField;
 
     public Document() {
         this.indexedFields = new HashMap<>();
         this.nonIndexedFields = new HashMap<>();
+        this.tfPerIndexedField = new HashMap<>();
     }
 
     public Document(Document another) {
-        this(another.indexedFields, another.nonIndexedFields, another.docId, another.tf);
+        this(another.indexedFields, another.nonIndexedFields, another.docId, another.tfPerIndexedField);
     }
 
-    private Document(Map<String, String> indexedFields, Map<String, String> nonIndexedFields, int docId, Map<String, Double> tf) {
+    private Document(Map<String, String> indexedFields, Map<String, String> nonIndexedFields, int docId, Map<String, Map<String, Double>> tfPerIndexedField) {
         this.indexedFields = indexedFields;
         this.nonIndexedFields = nonIndexedFields;
         this.docId = docId;
-        this.tf = tf;
+        this.tfPerIndexedField = tfPerIndexedField;
     }
 
     public int getDocId() {
@@ -92,20 +93,28 @@ public class Document implements Iterable<Field> {
         };
     }
 
-    Set<String> tokens() {
-        return tf.keySet();
+    public Set<String> indexedFields() {
+        return indexedFields.keySet();
     }
 
-    Double tf(String token) {
-        return tf.getOrDefault(token, 0.0);
+    public String get(String fieldName) {
+        return indexedFields.getOrDefault(fieldName, nonIndexedFields.get(fieldName));
     }
 
-    List<String> indexedValues() {
-        return new ArrayList<>(indexedFields.values());
+    public String getOrDefault(String fieldName, String defaultValue) {
+        return indexedFields.getOrDefault(fieldName, nonIndexedFields.getOrDefault(fieldName, defaultValue));
     }
 
-    Document setTf(Map<String, Double> tf) {
-        this.tf = tf;
+    Set<String> tokens(String field) {
+        return tfPerIndexedField.get(field).keySet();
+    }
+
+    Double tf(String field, String token) {
+        return tfPerIndexedField.get(field).getOrDefault(token, 0.0);
+    }
+
+    Document setTfPerIndexedField(String field, Map<String, Double> tfPerIndexedField) {
+        this.tfPerIndexedField.put(field, tfPerIndexedField);
         return this;
     }
 }

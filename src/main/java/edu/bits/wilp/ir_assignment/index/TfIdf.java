@@ -39,6 +39,11 @@ public class TfIdf implements Iterable<TfIdItem> {
         tfIdfVectors.put(new TfIdfKey(docId, tokenAsVocabId), tfIdf);
     }
 
+    public double getOrElse(int docId, String token, double defaultValue) {
+        int tokenAsVocabId = vocab.indexOf(token);
+        return tfIdfVectors.getOrDefault(new TfIdfKey(docId, tokenAsVocabId), defaultValue);
+    }
+
     public int indexOf(String token) {
         return vocab.indexOf(token);
     }

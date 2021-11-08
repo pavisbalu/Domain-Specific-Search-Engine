@@ -40,7 +40,10 @@ public class Indexer {
             }
         }
 
-        new Indexer().index(documents, "output.bin", "documents.bin");
+        Map<String, Double> alphaMapping = new HashMap<>();
+        alphaMapping.put("title", 0.75);
+        alphaMapping.put("description", 0.25);
+        new Indexer().index(documents, alphaMapping, "output.bin", "documents.bin");
     }
 
     /**
@@ -48,7 +51,10 @@ public class Indexer {
      *
      * @throws IOException IOException
      */
-    public void index(List<Document> documents, String modelFile, String documentsFile) throws IOException {
+    public void index(List<Document> documents, Map<String, Double> alphaMapping, String modelFile, String documentsFile) throws IOException {
+        LOG.info("Alpha Mapping: " + JsonSerDe.toJson(alphaMapping));
+        LOG.info("Output Model File: " + modelFile);
+        LOG.info("Documents File: " + documentsFile);
         LOG.info("Starting to tokenize documents");
         processDocuments(documents);
         LOG.info("Tokenize documents complete");
@@ -59,16 +65,30 @@ public class Indexer {
         LOG.info("Starting Tf-Idf calculations");
         TfIdf tfIdfTable = new TfIdf(N, DF);
 
+        Double sumOfAlphaOverrides = alphaMapping.values().stream().reduce(0.0, Double::sum);
+
         // compute tf-idf
-        // tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
+        // the alpha is the weight assigned to tokens from a given field to boost relevancy scores
+        // tf-idf(t, d) = alpha * tf(t, d) * log(N/(df + 1))
         for (Document document : documents) {
-            Set<String> tokens = document.tokens();
-            for (String token : tokens) {
-                double tf = document.tf(token);
-                double df = DF.get(token);
-                double idf = Math.log(N + 1 / df + 1);
-                double tfIdf = NumberUtil.roundDouble(tf * idf, DECIMAL_PRECISION);
-                tfIdfTable.add(document.getDocId(), token, tfIdf);
+            // we use the alpha from alpha mapping for the fields that are present
+            // for the rest of the fields, we'll split equally between the available value
+            double defaultAlpha = (1.0 - sumOfAlphaOverrides) / document.indexedFields().size();   // alpha is weight assigned to each indexed field.
+            for (String indexedField : document.indexedFields()) {
+                Set<String> tokens = document.tokens(indexedField);
+                for (String token : tokens) {
+                    double tf = document.tf(indexedField, token);
+                    double df = DF.get(token);
+                    double idf = Math.log(N + 1 / df + 1);
+                    Double alpha = alphaMapping.getOrDefault(indexedField, defaultAlpha);
+                    if (alpha == 0.0) {
+                        throw new RuntimeException("We've got a zero alpha for the field: " + indexedField);
+                    }
+                    double tfIdf = alpha * NumberUtil.roundDouble(tf * idf, DECIMAL_PRECISION);
+                    double existingTfIdf = tfIdfTable.getOrElse(document.getDocId(), token, 0.0);
+                    double newTfIdf = tfIdf + existingTfIdf;
+                    tfIdfTable.add(document.getDocId(), token, newTfIdf);
+                }
             }
         }
         LOG.info("Tf-Idf calculations, done. Writing the model file: " + modelFile);
@@ -84,12 +104,13 @@ public class Indexer {
     private void processDocuments(List<Document> documents) {
         int docId = 0;
         for (Document document : documents) {
-            // TODO: Need to tokenize each indexed field separately
-            DocumentTokenizer docTokenizer = new DocumentTokenizer(document.indexedValues());
-            docTokenizer.process();
-            Map<String, Double> docTf = docTokenizer.tf();
-
-            document.setDocId(docId).setTf(docTf);
+            document.setDocId(docId);
+            for (String indexedField : document.indexedFields()) {
+                DocumentTokenizer docTokenizer = new DocumentTokenizer(List.of(document.get(indexedField)));
+                docTokenizer.process();
+                Map<String, Double> fieldTf = docTokenizer.tf();
+                document.setTfPerIndexedField(indexedField, fieldTf);
+            }
 
             docId++;
         }
@@ -101,11 +122,13 @@ public class Indexer {
         // df(t) = occurrence of t in N documents
         // to normalize the value, we also divide the occurrence by total number of documents
         for (Document doc : documents) {
-            Set<String> tokens = doc.tokens();
-            for (String token : tokens) {
-                List<Integer> existingDocuments = termToDocuments.getOrDefault(token, new ArrayList<>());
-                existingDocuments.add(doc.getDocId());
-                termToDocuments.put(token, existingDocuments);
+            for (String indexedField : doc.indexedFields()) {
+                Set<String> tokens = doc.tokens(indexedField);
+                for (String token : tokens) {
+                    List<Integer> existingDocuments = termToDocuments.getOrDefault(token, new ArrayList<>());
+                    existingDocuments.add(doc.getDocId());
+                    termToDocuments.put(token, existingDocuments);
+                }
             }
         }
 

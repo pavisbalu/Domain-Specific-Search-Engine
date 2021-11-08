@@ -1,30 +1,7 @@
 package edu.bits.wilp.ir_assignment.search;
 
-import edu.bits.wilp.ir_assignment.index.Document_old;
-import edu.bits.wilp.ir_assignment.index.Documents;
-import edu.bits.wilp.ir_assignment.index.TfIdItem;
-import edu.bits.wilp.ir_assignment.index.TfIdf;
-import edu.bits.wilp.ir_assignment.tokenize.Counter;
-import edu.bits.wilp.ir_assignment.tokenize.Tokenizer;
-import edu.bits.wilp.ir_assignment.utils.KryoSerDe;
-import edu.bits.wilp.ir_assignment.utils.NumberUtil;
-import edu.bits.wilp.ir_assignment.utils.SystemUtil;
-import org.apache.commons.math3.linear.FieldVector;
-import org.apache.commons.math3.linear.SparseFieldMatrix;
-import org.apache.commons.math3.linear.SparseFieldVector;
-import org.apache.commons.math3.util.Decimal64;
-import org.apache.commons.math3.util.Decimal64Field;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
- * Uses the {@link TfIdf} and {@link Document_old} models to search a given query and return the response.
+ * Uses the {@link TfIdf} and {@link Document} models to search a given query and return the response.
  */
 //public class Searcher {
 //    private static final Logger LOG = LoggerFactory.getLogger(Searcher.class);
