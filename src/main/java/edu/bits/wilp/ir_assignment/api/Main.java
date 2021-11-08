@@ -24,7 +24,9 @@ public class Main {
         Searcher searcher = new Searcher(tfIdf, documents.getDocuments());
 
         int port = NumberUtils.toInt(System.getenv("PORT"));
-        Javalin app = Javalin.create().start(port);
+        Javalin app = Javalin.create(config -> {
+            config.enableCorsForAllOrigins();
+        }).start(port);
         app.get("/health", ctx -> ctx.result("Ok!"));
         app.get("/search", ctx -> {
             String q = ctx.queryParam("q");
