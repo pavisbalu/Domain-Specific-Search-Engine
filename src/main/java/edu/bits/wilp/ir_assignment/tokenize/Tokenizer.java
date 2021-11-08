@@ -1,5 +1,7 @@
 package edu.bits.wilp.ir_assignment.tokenize;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ public class Tokenizer {
     public static List<String> tokens(String input) {
         return new ArrayList<>(
                 Stream.of(input)
+                        .map(StringUtils::stripAccents)
                         .map(String::toLowerCase)
                         .map(s -> s.replaceAll("[^a-z0-9 ]", " "))
                         .flatMap(s -> Stream.of(s.split("\\s+")))

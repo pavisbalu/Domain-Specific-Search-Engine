@@ -103,7 +103,7 @@ public class Indexer {
         LOG.info("----------");
         LOG.info("Total Vocab size: " + tfIdfTable.vocabSize());
         LOG.info("Total Documents: " + tfIdfTable.N());
-        LOG.info("Total Terms: " + tfIdfTable.size());
+        LOG.info("Total tf-idf vectors: " + tfIdfTable.size());
     }
 
     private void processDocuments(List<Document> documents) {
