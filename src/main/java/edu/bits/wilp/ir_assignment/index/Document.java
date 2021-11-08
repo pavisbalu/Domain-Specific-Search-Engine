@@ -39,11 +39,6 @@ public class Document implements Iterable<Field> {
         return docId;
     }
 
-    public Document setDocId(int docId) {
-        this.docId = docId;
-        return this;
-    }
-
     public Document addIndexField(String key, String value) {
         if (nonIndexedFields.containsKey(key)) {
             throw new RuntimeException("field already exist as non-indexed");
@@ -103,6 +98,11 @@ public class Document implements Iterable<Field> {
 
     public String getOrDefault(String fieldName, String defaultValue) {
         return indexedFields.getOrDefault(fieldName, nonIndexedFields.getOrDefault(fieldName, defaultValue));
+    }
+
+    Document setDocId(int docId) {
+        this.docId = docId;
+        return this;
     }
 
     Set<String> tokens(String field) {
