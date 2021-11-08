@@ -99,6 +99,11 @@ public class Indexer {
         KryoSerDe.writeToFile(new Documents(documents), documentsFile);
 
         LOG.info("Indexing Complete");
+        LOG.info("Statistics");
+        LOG.info("----------");
+        LOG.info("Total Vocab size: " + tfIdfTable.vocabSize());
+        LOG.info("Total Documents: " + tfIdfTable.N());
+        LOG.info("Total Terms: " + tfIdfTable.size());
     }
 
     private void processDocuments(List<Document> documents) {

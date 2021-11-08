@@ -6,7 +6,7 @@ import java.util.*;
  * Represents the TF-IDF table along with few more metadata that is used for searching. This class represents
  * the TF-IDF model that's serialized to disk using <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>
  * framework.
- *
+ * <p>
  * In order to save space and faster lookups, we persist the vocab and tfIdVectors separately.
  */
 public class TfIdf implements Iterable<TfIdItem> {
@@ -22,7 +22,7 @@ public class TfIdf implements Iterable<TfIdItem> {
 
     public TfIdf(int totalDocuments, Map<String, Double> documentFrequencies) {
         this.totalDocuments = totalDocuments;
-        vocab = new ArrayList<>();
+        vocab = new ArrayList<>(documentFrequencies.keySet().size());
         tfIdfVectors = new HashMap<>();
         this.documentFrequencies = documentFrequencies;
     }
@@ -51,6 +51,10 @@ public class TfIdf implements Iterable<TfIdItem> {
     // Size of the documents
     public int N() {
         return totalDocuments;
+    }
+
+    public int vocabSize() {
+        return vocab.size();
     }
 
     // Size of the vocab
