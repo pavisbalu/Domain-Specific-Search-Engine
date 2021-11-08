@@ -1,29 +1,46 @@
 package edu.bits.wilp.ir_assignment.index;
 
+import edu.bits.wilp.ir_assignment.crawler.Data;
 import edu.bits.wilp.ir_assignment.tokenize.DocumentTokenizer;
+import edu.bits.wilp.ir_assignment.utils.JsonSerDe;
 import edu.bits.wilp.ir_assignment.utils.KryoSerDe;
 import edu.bits.wilp.ir_assignment.utils.NumberUtil;
 import edu.bits.wilp.ir_assignment.utils.SystemUtil;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Indexes the documents and writes the tf-idf and document models.
  */
 public class Indexer {
     private static final Logger LOG = LoggerFactory.getLogger(Indexer.class);
+    public static final int DECIMAL_PRECISION = 4;
 
     public static void main(String[] args) throws IOException {
         SystemUtil.disableWarning();
-        new Indexer().index("datasets/sample.csv", "reviews.text", "output.bin", "documents.bin");
+        String inputFile = "datasets/location-info.jsonl";
+        List<Document> documents = new ArrayList<>();
+        if (new File(inputFile).exists()) {
+            List<String> lines = IOUtils.readLines(new FileInputStream(inputFile), "UTF-8");
+            for (String dataAsJson : lines) {
+                Data data = JsonSerDe.fromJson(dataAsJson, Data.class);
+                Document doc = new Document();
+                doc.addNonIndexedField("url", data.getUrl());
+                for (String key : data.getFields().keySet()) {
+                    doc.addNonIndexedField(key, data.getFields().get(key));
+                }
+                doc.addIndexField("title", data.getTitle());
+                doc.addIndexField("description", data.getDescription());
+
+                documents.add(doc);
+            }
+        }
+
+        new Indexer().index(documents, "output.bin", "documents.bin");
     }
 
     /**
@@ -31,12 +48,10 @@ public class Indexer {
      *
      * @throws IOException IOException
      */
-    public void index(String filename, String inputFile, String modelFile, String documentsFile) throws IOException {
-        LOG.info("Opening " + filename + " for reading");
-        Reader in = new FileReader(filename);
-        Iterable<CSVRecord> records = csvFormat().parse(in);
-        LOG.info("Files read, starting to compute DF");
-        List<DocumentMeta> documents = processDocuments(inputFile, records);
+    public void index(List<Document> documents, String modelFile, String documentsFile) throws IOException {
+        LOG.info("Starting to tokenize documents");
+        processDocuments(documents);
+        LOG.info("Tokenize documents complete");
 
         final int N = documents.size();
         Map<String, Double> DF = computeDF(documents);
@@ -46,14 +61,14 @@ public class Indexer {
 
         // compute tf-idf
         // tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
-        for (DocumentMeta document : documents) {
+        for (Document document : documents) {
             Set<String> tokens = document.tokens();
             for (String token : tokens) {
                 double tf = document.tf(token);
                 double df = DF.get(token);
                 double idf = Math.log(N + 1 / df + 1);
-                double tfIdf = NumberUtil.roundDouble(tf * idf, 4);
-                tfIdfTable.add(document.docId, token, tfIdf);
+                double tfIdf = NumberUtil.roundDouble(tf * idf, DECIMAL_PRECISION);
+                tfIdfTable.add(document.getDocId(), token, tfIdf);
             }
         }
         LOG.info("Tf-Idf calculations, done. Writing the model file: " + modelFile);
@@ -61,38 +76,35 @@ public class Indexer {
         KryoSerDe.writeToFile(tfIdfTable, modelFile);
 
         LOG.info("Persisting the documents: " + documentsFile);
-        List<Document> docsForPersist = documents.stream().map(d -> new Document(d.docId, d.text)).collect(Collectors.toList());
-        KryoSerDe.writeToFile(new Documents(docsForPersist), documentsFile);
+        KryoSerDe.writeToFile(new Documents(documents), documentsFile);
 
         LOG.info("Indexing Complete");
     }
 
-    private List<DocumentMeta> processDocuments(String fieldName, Iterable<CSVRecord> records) {
-        List<DocumentMeta> documents = new ArrayList<>();
+    private void processDocuments(List<Document> documents) {
         int docId = 0;
-        for (CSVRecord record : records) {
-            String reviewsText = record.get(fieldName);
-            DocumentTokenizer document = new DocumentTokenizer(List.of(reviewsText));
-            document.process();
-            Map<String, Double> docTf = document.tf();
-            documents.add(new DocumentMeta(docTf, docId, reviewsText));
+        for (Document document : documents) {
+            // TODO: Need to tokenize each indexed field separately
+            DocumentTokenizer docTokenizer = new DocumentTokenizer(document.indexedValues());
+            docTokenizer.process();
+            Map<String, Double> docTf = docTokenizer.tf();
 
-            // update the docId, so we can consider each review as a new document
+            document.setDocId(docId).setTf(docTf);
+
             docId++;
         }
-        return documents;
     }
 
-    private Map<String, Double> computeDF(List<DocumentMeta> documents) {
+    private Map<String, Double> computeDF(List<Document> documents) {
         Map<String, Double> DF = new HashMap<>();
         Map<String, List<Integer>> termToDocuments = new HashMap<>();
         // df(t) = occurrence of t in N documents
         // to normalize the value, we also divide the occurrence by total number of documents
-        for (DocumentMeta doc : documents) {
+        for (Document doc : documents) {
             Set<String> tokens = doc.tokens();
             for (String token : tokens) {
                 List<Integer> existingDocuments = termToDocuments.getOrDefault(token, new ArrayList<>());
-                existingDocuments.add(doc.docId);
+                existingDocuments.add(doc.getDocId());
                 termToDocuments.put(token, existingDocuments);
             }
         }
@@ -102,12 +114,5 @@ public class Indexer {
             DF.put(term, (double) termToDocuments.get(term).size() / N);
         }
         return DF;
-    }
-
-    private CSVFormat csvFormat() {
-        return CSVFormat.EXCEL.builder()
-                .setHeader()
-                .setSkipHeaderRecord(true)
-                .build();
     }
 }

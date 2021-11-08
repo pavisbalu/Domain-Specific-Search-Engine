@@ -1,4 +1,4 @@
-package edu.bits.wilp.ir_assignment.model;
+package edu.bits.wilp.ir_assignment.index;
 
 public class Field {
     private final String key;
