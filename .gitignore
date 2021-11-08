@@ -34,3 +34,4 @@ dependency-reduced-pom.xml
 
 # Full Dataset
 /datasets/product-reviews-dataset/
+/crawled-docs/
