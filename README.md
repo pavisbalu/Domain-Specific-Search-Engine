@@ -6,23 +6,16 @@ API is hosted on Heroku and App is hosted on Github Pages.
 
 <hr />
 
-<!-- vscode-markdown-toc -->
-* 1. [Usage](#Usage)
-* 2. [Dataset Collection](#DatasetCollection)
-	* 2.1. [Crawler Implementation Notes](#CrawlerImplementationNotes)
-* 3. [Indexing](#Indexing)
-* 4. [Searching](#Searching)
-	* 4.1. [Custom SparseVector Implementation](#CustomSparseVectorImplementation)
-* 5. [Citations / References](#CitationsReferences)
-* 6. [Problem Statement](#ProblemStatement)
+- [Usage](#usage)
+- [Dataset Collection](#dataset-collection)
+  - [Crawler Implementation Notes](#crawler-implementation-notes)
+- [Indexing](#indexing)
+- [Searching](#searching)
+  - [Custom SparseVector Implementation](#custom-sparsevector-implementation)
+- [Citations / References](#citations--references)
+- [Problem Statement](#problem-statement)
 
-<!-- vscode-markdown-toc-config
-	numbering=true
-	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
-
-##  1. <a name='Usage'></a>Usage
+## <a name='Usage'></a>Usage
 
 Assignment was built using JDK 11 and we use Maven as our build tool of choice.
 
@@ -68,14 +61,14 @@ Precision: 0.3041, Recall: 0.0016
 
 # Implementation Notes
 
-##  2. <a name='DatasetCollection'></a>Dataset Collection
+## <a name='DatasetCollection'></a>Dataset Collection
 
 In order to work with latitude and longitude data, we have implemented a custom crawler which crawls
 [LatLong.net](https://www.latlong.net/countries.html) to capture all the places across all the countries along with some
 more additional information. You can find the actual schema of the data at `datasets/location-info.jsonl`. The custom
 crawler implementation is part of `edu.bits.wilp.ir_assignment.crawler` package.
 
-###  2.1. <a name='CrawlerImplementationNotes'></a>Crawler Implementation Notes
+### <a name='CrawlerImplementationNotes'></a>Crawler Implementation Notes
 
 We've implemented a multi-threaded crawler which is entirely modelled as a producer-producer-consumer pattern. The
 crawler contains two primary threads: `Fetcher` and `Writer`. The `Fetcher` is responsible for doing the actual fetches
@@ -111,7 +104,7 @@ functionality we do the following two things:
   again. This also helped us iterate on our Parser safely by running through the crawled pages multiple times locally
   than re-fetching them again over the internet.
 
-##  3. <a name='Indexing'></a>Indexing
+## <a name='Indexing'></a>Indexing
 
 Indexing is the process of converting the raw documents to TF-IDF Vectorised model so we can search across these
 documents faster. Our indexing is available in `edu.bits.wilp.ir_assignment.index` package. Most of our TF, DF, IDF and
@@ -122,13 +115,13 @@ location dataset that we captured above, we have highest weight of 75% to title 
 consitutue only 25% of the total score. In other words, tokens from title would have higher ranks compared to tokens
 from description.
 
-##  4. <a name='Searching'></a>Searching
+## <a name='Searching'></a>Searching
 
 Searching is the process of using the model generated from [Indexing](#3-indexing) step to find relevant documents. We
 use [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity) to find relevancy between the given query and a
 document and return the top K results. Currently in our implementation K is set to _10_.
 
-###  4.1. <a name='CustomSparseVectorImplementation'></a>Custom SparseVector Implementation
+### <a name='CustomSparseVectorImplementation'></a>Custom SparseVector Implementation
 
 While we were working with a very small dataset (100 documents) using 2D arrays worked well. When we started working
 with the entire dataset of 20K documents and ~750K terms the program started crashing with Heap Size issue because of
@@ -146,14 +139,14 @@ or `squared()` was not supported in their Vector implementations which we did. T
 time from 10+ minutes for a single query to < 300ms which was a huge motivation for us to build the API and the App
 because we could search the dataset in realistic amount of time.
 
-##  5. <a name='CitationsReferences'></a>Citations / References
+## <a name='CitationsReferences'></a>Citations / References
 
 - Stopwords used are from https://www.ranks.nl/stopwords. We use the very large stop word list.
 - [Reference implementation in Python for inspiration](https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089)
 
 <hr />
 
-##  6. <a name='ProblemStatement'></a>Problem Statement
+## <a name='ProblemStatement'></a>Problem Statement
 
 The task is to build a search engine which will cater to the needs of a particular domain. You have to feed your IR
 model with documents containing information about the chosen domain. It will then process the data and build indexes.
