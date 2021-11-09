@@ -4,7 +4,25 @@ Live Demo: https://pavisbalu.github.io/maps-search/
 
 API is hosted on Heroku and App is hosted on Github Pages.
 
-## Usage
+<hr />
+
+<!-- vscode-markdown-toc -->
+* 1. [Usage](#Usage)
+* 2. [Dataset Collection](#DatasetCollection)
+	* 2.1. [Crawler Implementation Notes](#CrawlerImplementationNotes)
+* 3. [Indexing](#Indexing)
+* 4. [Searching](#Searching)
+	* 4.1. [Custom SparseVector Implementation](#CustomSparseVectorImplementation)
+* 5. [Citations / References](#CitationsReferences)
+* 6. [Problem Statement](#ProblemStatement)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+##  1. <a name='Usage'></a>Usage
 
 Assignment was built using JDK 11 and we use Maven as our build tool of choice.
 
@@ -48,14 +66,16 @@ Precision: 0.3041, Recall: 0.0016
 {"docId":3078,"cosineSim":0.7060182777803725,"document":{"indexedFields":{"title":"New Delhi, Delhi, India","description":"One of the most crowded cities of the world, New Delhi, or simply Delhi, is the capital of India and is the largest city of the country as well. It is located close to the geographical center of the country and is a key cultural and tourist center of India, with a huge number of temples, palaces, modern shopping malls and office centers, stadiums, parks and numerous recreational facilities that can be found there. Just like most of the large cities of the country, New Delhi has a very long history and, as the capital city, it played a key role in all the latest developments and historical events related to independence gaining and modern progress of the city. In contrast to a common idea, New Delhi is not a home to the Taj Mahal, but there is a large amount of amazing landmarks like the amazing Lotus Temple, the Akshardham Temple, the Rashtrapati Bhavan, the Secretariat Building of the Country, the National Museum, the Rajpath, Gurudwara Bangla Sahib, Laxminarayan Temple, the Sacred Heart Cathedral, and so on. The city is the key center of transportation, entertainment, sports, and cultural life of the country. It is home to the people of different kinds of religions and origins, with most of them living happily side by side."},"nonIndexedFields":{"country":"India","zoom level":"10","latitude":"28.644800","country code":"IN","utm northing":"3,170,643.46","category":"Cities","dms lat":"28° 38' 41.2800'' N","dms long":"77° 13' 0.1956'' E","url":"https://www.latlong.net/place/new-delhi-delhi-india-2441.html","longitude":"77.216721","utm easting":"716,671.89"}}}
 ```
 
-## Dataset Collection
+# Implementation Notes
+
+##  2. <a name='DatasetCollection'></a>Dataset Collection
 
 In order to work with latitude and longitude data, we have implemented a custom crawler which crawls
 [LatLong.net](https://www.latlong.net/countries.html) to capture all the places across all the countries along with some
 more additional information. You can find the actual schema of the data at `datasets/location-info.jsonl`. The custom
 crawler implementation is part of `edu.bits.wilp.ir_assignment.crawler` package.
 
-### Crawler Implementation Notes
+###  2.1. <a name='CrawlerImplementationNotes'></a>Crawler Implementation Notes
 
 We've implemented a multi-threaded crawler which is entirely modelled as a producer-producer-consumer pattern. The
 crawler contains two primary threads: `Fetcher` and `Writer`. The `Fetcher` is responsible for doing the actual fetches
@@ -91,13 +111,49 @@ functionality we do the following two things:
   again. This also helped us iterate on our Parser safely by running through the crawled pages multiple times locally
   than re-fetching them again over the internet.
 
-## Citations / References
+##  3. <a name='Indexing'></a>Indexing
+
+Indexing is the process of converting the raw documents to TF-IDF Vectorised model so we can search across these
+documents faster. Our indexing is available in `edu.bits.wilp.ir_assignment.index` package. Most of our TF, DF, IDF and
+TF-IDF implementation was inspired
+from [this blog post](https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089)
+. We have implemented indexing on different fields of the same document using custom weights. For example, from our
+location dataset that we captured above, we have highest weight of 75% to title while the description tf-idf scores
+consitutue only 25% of the total score. In other words, tokens from title would have higher ranks compared to tokens
+from description.
+
+##  4. <a name='Searching'></a>Searching
+
+Searching is the process of using the model generated from [Indexing](#3-indexing) step to find relevant documents. We
+use [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity) to find relevancy between the given query and a
+document and return the top K results. Currently in our implementation K is set to _10_.
+
+###  4.1. <a name='CustomSparseVectorImplementation'></a>Custom SparseVector Implementation
+
+While we were working with a very small dataset (100 documents) using 2D arrays worked well. When we started working
+with the entire dataset of 20K documents and ~750K terms the program started crashing with Heap Size issue because of
+the very sparse nature of the document term relationship. In other words the description and title contained almost
+unique terms which was very specific to the document and don't repeat that often across documents. That is the very
+nature of the dataset we're working with.
+
+In order to handle this scenario and exploit the sparse relationship nature between terms and documents, we had to
+implement a custom SparseMatrix and SparseVector implementations for our cosine-sim calculations. We started of using
+the [SparseFieldMatrix](https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/linear/SparseFieldMatrix.html)
+from [Apache commons-math](https://commons.apache.org/proper/commons-math/). While the in-memory representation was
+great getting individual row vector (for a document) was so slow and taking very long time. We took inspiration from the
+existing implementation and modified a few things that we wanted to make things super fast. Also methods like `norm()`
+or `squared()` was not supported in their Vector implementations which we did. This significantly reduced our search
+time from 10+ minutes for a single query to < 300ms which was a huge motivation for us to build the API and the App
+because we could search the dataset in realistic amount of time.
+
+##  5. <a name='CitationsReferences'></a>Citations / References
 
 - Stopwords used are from https://www.ranks.nl/stopwords. We use the very large stop word list.
+- [Reference implementation in Python for inspiration](https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089)
 
 <hr />
 
-## Problem Statement
+##  6. <a name='ProblemStatement'></a>Problem Statement
 
 The task is to build a search engine which will cater to the needs of a particular domain. You have to feed your IR
 model with documents containing information about the chosen domain. It will then process the data and build indexes.
