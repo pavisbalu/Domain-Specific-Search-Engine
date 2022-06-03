@@ -1,4 +1,4 @@
-# Group A1 - IR Assignment
+# Domain Specific Search Engine
 
 Live Demo: https://pavisbalu.github.io/maps-search/
 
